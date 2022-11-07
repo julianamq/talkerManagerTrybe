@@ -8,7 +8,8 @@ app.use(express.json());
 app.use(bodyParser.json());
 
 const HTTP_OK_STATUS = 200;
-const PORT = '3000';
+const PORT = 3000;
+const HTTP_BAD_REQUEST = 400;
 // o primeiro onde estará o recurso
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
@@ -32,9 +33,40 @@ app.get('/talker/:id', async (request, response) => { // two;
 });
 // aqui dará 16
 const validarTk = () => crypto.randomBytes(8).toString('hex');
-console.log(validarTk);
+// console.log(validarTk);
+const validarEmail = (request, response, next) => {
+  const regex = /^\w+@\w+\.\w+$/;
+  const { email } = request.body;
+  if (!email) {
+    return response.status(HTTP_BAD_REQUEST).json({
+      message: 'O campo "email" é obrigatório',
+    });
+  }
+  if (!regex.test(email)) {
+    return response.status(HTTP_BAD_REQUEST).json({
+      message: 'O "email" deve ter o formato "email@email.com"',
+    });
+  }
 
-app.post('/login', async (_request, response) => {
+  next();
+};
+
+const validarPassWord = (request, response, next) => {
+  const { password } = request.body;
+  if (!password) {
+    return response.status(HTTP_BAD_REQUEST).json({
+      message: 'O campo "password" é obrigatório',
+    });
+  }
+
+  if (password.length < 6) {
+    return response.status(HTTP_BAD_REQUEST).json({
+      message: 'O "password" deve ter pelo menos 6 caracteres',
+    });
+  }
+  next();
+};
+app.post('/login', validarEmail, validarPassWord, async (_request, response) => {
   const tk = validarTk();
   response.status(HTTP_OK_STATUS).json({ token: tk });
 });
@@ -43,4 +75,8 @@ app.listen(PORT, () => {
   console.log('Online');
 });
 
-module.exports = app;
+module.exports = {
+  // app,
+  validarEmail,
+  validarPassWord,
+};
