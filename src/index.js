@@ -1,26 +1,39 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
-const { getAllFiles } = require('./utils/utils');
+const { getAllFiles, writeFiles } = require('./utils/utils');
+const {
+  validarPassWord,
+  validarEmail,
+  autorizacao,
+  campoNome,
+  campoIdade,
+  campotalk,
+  campoRate,
+  campowatchedAt,
+} = require('./talkers');
 
 const app = express();
 app.use(express.json());
 app.use(bodyParser.json());
 
 const HTTP_OK_STATUS = 200;
+const HTTP_CREATED = 201;
 const PORT = 3000;
-const HTTP_BAD_REQUEST = 400;
+
 // o primeiro onde estará o recurso
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
 
-app.get('/talker', async (_request, response) => { // one
+app.get('/talker', async (_request, response) => {
+  // one
   const files = await getAllFiles();
   response.status(HTTP_OK_STATUS).json(files);
 });
 
-app.get('/talker/:id', async (request, response) => { // two;
+app.get('/talker/:id', async (request, response) => {
+  // two;
   const idGet = request.params.id;
   const readFile = await getAllFiles();
   const talkerId = readFile.find(({ id }) => id === Number(idGet));
@@ -33,50 +46,49 @@ app.get('/talker/:id', async (request, response) => { // two;
 });
 // aqui dará 16
 const validarTk = () => crypto.randomBytes(8).toString('hex');
-// console.log(validarTk);
-const validarEmail = (request, response, next) => {
-  const regex = /^\w+@\w+\.\w+$/;
-  const { email } = request.body;
-  if (!email) {
-    return response.status(HTTP_BAD_REQUEST).json({
-      message: 'O campo "email" é obrigatório',
-    });
-  }
-  if (!regex.test(email)) {
-    return response.status(HTTP_BAD_REQUEST).json({
-      message: 'O "email" deve ter o formato "email@email.com"',
-    });
-  }
 
-  next();
-};
-
-const validarPassWord = (request, response, next) => {
-  const { password } = request.body;
-  if (!password) {
-    return response.status(HTTP_BAD_REQUEST).json({
-      message: 'O campo "password" é obrigatório',
-    });
-  }
-
-  if (password.length < 6) {
-    return response.status(HTTP_BAD_REQUEST).json({
-      message: 'O "password" deve ter pelo menos 6 caracteres',
-    });
-  }
-  next();
-};
 app.post('/login', validarEmail, validarPassWord, async (_request, response) => {
+  // 4
   const tk = validarTk();
   response.status(HTTP_OK_STATUS).json({ token: tk });
 });
-
+app.post('/talker',
+  autorizacao,
+  campoNome,
+  campoIdade,
+  campotalk,
+  campowatchedAt,
+  campoRate,
+  async (request, response) => {
+    // 5 ;
+    const { name, age, talk } = request.body;
+    const filesFunct = await getAllFiles();
+    let maiorId = 0;
+    filesFunct.forEach(({ id }) => {
+      if (id > maiorId) {
+        maiorId = id;
+      }
+    });
+    filesFunct.push({ name, age, talk, id: maiorId + 1 }); 
+    writeFiles(filesFunct); // vou add o push na função write e add a talker.json
+    response.status(HTTP_CREATED).json({
+      name, age, talk, id: maiorId + 1,
+    });
+  });
+  
 app.listen(PORT, () => {
   console.log('Online');
 });
 
 module.exports = {
-  // app,
-  validarEmail,
-  validarPassWord,
+  app,
 };
+
+// 1. Pegar todos os talkers
+//   1.1 getAllFiles()
+// 2. Pegar o maior id de talkers
+//   2.1 maiorId.forEach
+//      ID atual é maior que o maior ID (inicial: 0)?
+//      Se sim: maior ID = ID atual
+//      Se não: não faz nada
+//    maior ID 
