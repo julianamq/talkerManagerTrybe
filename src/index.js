@@ -70,7 +70,7 @@ app.post('/talker',
       }
     });
     filesFunct.push({ name, age, talk, id: maiorId + 1 }); 
-    writeFiles(filesFunct); // vou add o push na função write e add a talker.json
+    await writeFiles(filesFunct); // vou add o push na função write e add a talker.json
     response.status(HTTP_CREATED).json({
       name, age, talk, id: maiorId + 1,
     });

@@ -86,7 +86,7 @@ const campoIdade = (request, response, next) => {
 };
 const campotalk = (request, response, next) => {
     const { talk } = request.body;
-    if (talk === undefined) {
+    if (!talk) {
         return response.status(HTTP_BAD_REQUEST).json({
             message: 'O campo "talk" é obrigatório',
         });
@@ -115,7 +115,7 @@ const campoRate = (request, response, next) => {
             message: 'O campo "rate" é obrigatório',
         });
     }
-    if (Number.isInteger(rate) === false) {
+    if (!Number.isInteger(rate)) {
         return response.status(HTTP_BAD_REQUEST).json({
             message: 'O campo "rate" deve ser um inteiro de 1 à 5',
         });
