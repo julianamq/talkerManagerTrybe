@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const crypto = require('crypto');
 const { getAllFiles } = require('./utils/utils');
 
 const app = express();
@@ -28,6 +29,14 @@ app.get('/talker/:id', async (request, response) => { // two;
   if (!talkerId) {
     response.status(404).json({ message: 'Pessoa palestrante não encontrada' });
   }
+});
+// aqui dará 16
+const validarTk = () => crypto.randomBytes(8).toString('hex');
+console.log(validarTk);
+
+app.post('/login', async (_request, response) => {
+  const tk = validarTk();
+  response.status(HTTP_OK_STATUS).json({ token: tk });
 });
 
 app.listen(PORT, () => {
