@@ -1,4 +1,4 @@
-const { writeFiles, getAllFiles } = require('./utils/utils');
+const { writeFiles, getAllFiles, getPath } = require('./utils/utils');
 
 const HTTP_BAD_REQUEST = 400;
 const HTTP_UNAUTHORIZED = 401;

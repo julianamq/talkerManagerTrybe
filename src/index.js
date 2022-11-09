@@ -95,15 +95,17 @@ app.put(
     response.status(HTTP_OK_STATUS).json({ name, age, talk, id: Number(id) });
   },
 );
+
 app.delete('/talker/:id', autorizacao, async (request, response) => {
   const { id } = request.params;
- const deleteTalk = await getAllFiles();
-//  const newDelete = deleteTalk.filter((del.id) => {
-//   if () {
-//   }
-//  });
- await writeFiles(newDelete);
+  const users = await getAllFiles();
+  const user = users.find((t) => t.id !== id);
+  const idNumbers = Number(request.params.id);
+  const result = idNumbers;
+  await writeFiles(user);
+  response.status(HTTP_NO_CONTENT).end(result);
 });
+
 app.listen(PORT, () => {
   console.log('Online');
 });
