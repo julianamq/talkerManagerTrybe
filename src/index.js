@@ -78,7 +78,15 @@ app.post('/talker',
       name, age, talk, id: maiorId + 1,
     });
   });
-
+  app.delete('/talker/:id', autorizacao, async (request, response) => {
+    const { id } = request.params;
+    const users = await getAllFiles();
+   
+    const user = users.find((t) => t.id !== +id);
+     await writeFiles(user);
+    response.status(HTTP_NO_CONTENT).end();
+  });
+  
 app.put(
   '/talker/:id', autorizacao, campoNome, campoIdade, campotalk,
   campowatchedAt, campoRate, async (request, response) => {
@@ -95,16 +103,6 @@ app.put(
     response.status(HTTP_OK_STATUS).json({ name, age, talk, id: Number(id) });
   },
 );
-
-app.delete('/talker/:id', autorizacao, async (request, response) => {
-  const { id } = request.params;
-  const users = await getAllFiles();
-  const user = users.find((t) => t.id !== id);
-  const idNumbers = Number(request.params.id);
-  const result = idNumbers;
-  await writeFiles(user);
-  response.status(HTTP_NO_CONTENT).end(result);
-});
 
 app.listen(PORT, () => {
   console.log('Online');

@@ -141,7 +141,6 @@ const campoRate = (request, response, next) => {
 };
 
 module.exports = {
-   
     validarEmail,
     validarPassWord,
     autorizacao,
