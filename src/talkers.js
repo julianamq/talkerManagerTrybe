@@ -1,6 +1,18 @@
+const { writeFiles, getAllFiles } = require('./utils/utils');
+
 const HTTP_BAD_REQUEST = 400;
 const HTTP_UNAUTHORIZED = 401;
 
+const saveTalker = async (newTalker, id) => {
+    const users = await getAllFiles();
+    const resp = users.findIndex((item) => item.id === id);
+    users.splice(resp, 1, {
+        id,
+        ...newTalker,
+    });
+    await writeFiles(getPath, JSON.stringify(users, null, 2));
+    return { id, ...newTalker };
+};
 const validarEmail = (request, response, next) => {
     // 4
     const regex = /^\w+@\w+\.\w+$/;
@@ -72,7 +84,7 @@ const campoNome = (request, response, next) => {
 };
 const campoIdade = (request, response, next) => {
     const { age } = request.body;
-    if (age === undefined) {
+    if (!age) {
         return response.status(HTTP_BAD_REQUEST).json({
             message: 'O campo "age" é obrigatório',
         });
@@ -119,15 +131,17 @@ const campoRate = (request, response, next) => {
         return response.status(HTTP_BAD_REQUEST).json({
             message: 'O campo "rate" deve ser um inteiro de 1 à 5',
         });
+    }
+    if (rate < 1 || rate > 5) {
+        return response.status(HTTP_BAD_REQUEST).json({
+            message: 'O campo "rate" deve ser um inteiro de 1 à 5',
+        });
     } 
- if (rate < 1 || rate > 5) {
-    return response.status(HTTP_BAD_REQUEST).json({
-        message: 'O campo "rate" deve ser um inteiro de 1 à 5',
-    });
- }
     next();
 };
+
 module.exports = {
+   
     validarEmail,
     validarPassWord,
     autorizacao,
@@ -136,4 +150,5 @@ module.exports = {
     campotalk,
     campowatchedAt,
     campoRate,
+    saveTalker,
 };

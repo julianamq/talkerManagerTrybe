@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const { getAllFiles, writeFiles } = require('./utils/utils');
 const {
+
   validarPassWord,
   validarEmail,
   autorizacao,
@@ -11,6 +12,7 @@ const {
   campotalk,
   campoRate,
   campowatchedAt,
+
 } = require('./talkers');
 
 const app = express();
@@ -69,13 +71,30 @@ app.post('/talker',
         maiorId = id;
       }
     });
-    filesFunct.push({ name, age, talk, id: maiorId + 1 }); 
+    filesFunct.push({ name, age, talk, id: maiorId + 1 });
     await writeFiles(filesFunct); // vou add o push na função write e add a talker.json
     response.status(HTTP_CREATED).json({
       name, age, talk, id: maiorId + 1,
     });
   });
-  
+
+app.put(
+  '/talker/:id', autorizacao, campoNome, campoIdade, campotalk,
+  campowatchedAt, campoRate, async (request, response) => {
+    const { id } = request.params;
+    const { name, age, talk } = request.body;
+    const actTalker = await getAllFiles();
+    const newEdit = actTalker.map((idTalker) => {
+        if (idTalker.id === Number(id)) {
+        const newUpdate = { name, age, talk, id: Number(id) };
+        return newUpdate;
+      } return idTalker;
+    });
+   await writeFiles(newEdit); 
+   response.status(HTTP_OK_STATUS).json({ name, age, talk, id: Number(id) });
+  }, 
+);
+
 app.listen(PORT, () => {
   console.log('Online');
 });
@@ -83,12 +102,3 @@ app.listen(PORT, () => {
 module.exports = {
   app,
 };
-
-// 1. Pegar todos os talkers
-//   1.1 getAllFiles()
-// 2. Pegar o maior id de talkers
-//   2.1 maiorId.forEach
-//      ID atual é maior que o maior ID (inicial: 0)?
-//      Se sim: maior ID = ID atual
-//      Se não: não faz nada
-//    maior ID 

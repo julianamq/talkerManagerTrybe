@@ -17,4 +17,5 @@ const writeFiles = async (dados) => { // dados n√£o sei o que vou receber , ent√
 module.exports = {
   getAllFiles,
   writeFiles,
+  getPath,
 };
