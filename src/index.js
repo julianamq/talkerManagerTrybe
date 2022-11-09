@@ -21,6 +21,7 @@ app.use(bodyParser.json());
 
 const HTTP_OK_STATUS = 200;
 const HTTP_CREATED = 201;
+const HTTP_NO_CONTENT = 204;
 const PORT = 3000;
 
 // o primeiro onde estará o recurso
@@ -85,16 +86,24 @@ app.put(
     const { name, age, talk } = request.body;
     const actTalker = await getAllFiles();
     const newEdit = actTalker.map((idTalker) => {
-        if (idTalker.id === Number(id)) {
+      if (idTalker.id === Number(id)) {
         const newUpdate = { name, age, talk, id: Number(id) };
         return newUpdate;
       } return idTalker;
     });
-   await writeFiles(newEdit); 
-   response.status(HTTP_OK_STATUS).json({ name, age, talk, id: Number(id) });
-  }, 
+    await writeFiles(newEdit);
+    response.status(HTTP_OK_STATUS).json({ name, age, talk, id: Number(id) });
+  },
 );
-
+app.delete('/talker/:id', autorizacao, async (request, response) => {
+  const { id } = request.params;
+ const deleteTalk = await getAllFiles();
+//  const newDelete = deleteTalk.filter((del.id) => {
+//   if () {
+//   }
+//  });
+ await writeFiles(newDelete);
+});
 app.listen(PORT, () => {
   console.log('Online');
 });
